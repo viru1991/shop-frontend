@@ -23,8 +23,9 @@ import ContactsPopover from '../common/contacts-popover';
 import LanguagePopover from '../common/language-popover';
 import NotificationsPopover from '../common/notifications-popover';
 import { useDispatch, useSelector } from 'react-redux';
-import { executeACGAction,reset } from 'src/store/slice';
+import { executeACGAction, reset } from 'src/store/slice';
 import { useRouter } from 'src/routes/hooks';
+import { removeLocalStorage } from 'src/utilities/storageUtility';
 // ----------------------------------------------------------------------
 
 export default function Header({ onOpenNav }) {
@@ -43,6 +44,8 @@ export default function Header({ onOpenNav }) {
   const offsetTop = offset && !isNavHorizontal;
 
   const logout = () => {
+    removeLocalStorage('token');
+    removeLocalStorage('role');
     dispatch(reset())
     router.replace('/');
   }

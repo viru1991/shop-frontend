@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -14,18 +14,18 @@ import Typography from '@mui/material/Typography';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { productListMock } from 'src/_mock/productListMock';
 // import { useGetProduct } from 'src/api/product';
+import { PRODUCT_PUBLISH_OPTIONS } from 'src/_mock';
 
 import Iconify from 'src/components/iconify';
 import EmptyContent from 'src/components/empty-content';
 import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 
-import CartIcon from '../common/cart-icon';
-import { useCheckoutContext } from '../../checkout/context';
-import ProductDetailsReview from '../product-details-review';
 import { ProductDetailsSkeleton } from '../product-skeleton';
+import ProductDetailsReview from '../product-details-review';
 import ProductDetailsSummary from '../product-details-summary';
+import ProductDetailsToolbar from '../product-details-toolbar';
 import ProductDetailsCarousel from '../product-details-carousel';
 import ProductDetailsDescription from '../product-details-description';
 
@@ -57,51 +57,72 @@ const SUMMARY = [
 
 // ----------------------------------------------------------------------
 
-export default function ProductShopDetailsView({ id }) {
+export default function ProductDetailsView({ id }) {
+  // const {  productLoading, productError } = useGetProduct(id);
+  const [product,setProduct] = useState({})
+   const dispatch = useDispatch();
+    const acgStateSelector = createStructuredSelector({
+      acgSlice: acgSelector()
+    });
+    const { acgSlice: state } = useSelector(acgStateSelector);
+  // const product = productListMock.products.filter((ele) => ele?.id === id)[0]
+  // const product =  state?.productDetail?.data[0]
+  console.log(product)
+
   const settings = useSettingsContext();
-  const dispatch = useDispatch();
-  const acgStateSelector = createStructuredSelector({
-    acgSlice: acgSelector()
-  });
-  const { acgSlice: state } = useSelector(acgStateSelector);
-  console.log(id, "id")
-  const checkout = useCheckoutContext();
 
   const [currentTab, setCurrentTab] = useState('description');
 
-  // const { product, productLoading, productError } = useGetProduct(id);
-  // const product = {};
-  // const productLoading = true
+  const [publish, setPublish] = useState('');
+
+
+    useEffect(() => {
+      dispatch(loadStart())
+      const bundle = {
+          payload: {
+              urlPath: ACTION_CODES.GET_PRODUCT_DETAIL+`/${id}`,
+              requestType: 'GET',
+          },
+          uniqueScreenIdentifier: { productDetail: id },
+          storeKey: STORE_KEYS.PRODUCT_DETAIL
+      };
+      dispatch(executeACGAction(bundle));
+    },[])
+
+    useEffect(() => {
+      // const data = [...state?.productDetail?.data]
+      const data = Array.isArray(state?.productDetail?.data)
+  ? state.productDetail.data
+  : [];
+      const newData = data?.map((ele) => {
+        return {
+          ...ele,
+          id:ele?._id,
+          publish:'published'
+        }
+      })
+      setProduct(newData[0])
+    },[state?.productDetail?.data])
+
+    useEffect(() => {
+      console.log(product,"prod now")
+    },[product])
+
+  useEffect(() => {
+    if (product) {
+      setPublish(product?.publish);
+    }
+  }, [product]);
+
+  const handleChangePublish = useCallback((newValue) => {
+    setPublish(newValue);
+  }, []);
+
   const handleChangeTab = useCallback((event, newValue) => {
     setCurrentTab(newValue);
   }, []);
 
-  // const [product,setProduct] = useState({})
-  const product = state?.productDetail?.data[0]
-
-  useEffect(() => {
-    dispatch(loadStart())
-    const bundle = {
-        payload: {
-            urlPath: ACTION_CODES.GET_PRODUCT_DETAIL+`/${id}`,
-            requestType: 'GET',
-        },
-        // uniqueScreenIdentifier: { isLoggedIn: true },
-          uniqueScreenIdentifier: { productDetail: id },
-        storeKey: STORE_KEYS.PRODUCT_DETAIL
-    };
-    dispatch(executeACGAction(bundle));
-  },[dispatch])
-
-
-//  useEffect(() => {
-//     if(state?.productDetail?.data){
-//       setProduct(state.productDetail?.data)
-//     }
-//   }, [state?.productDetail]);
-  
-
-  const renderSkeleton = <ProductDetailsSkeleton />;
+  // const renderSkeleton = <ProductDetailsSkeleton />;
 
   const renderError = (
     <EmptyContent
@@ -110,7 +131,7 @@ export default function ProductShopDetailsView({ id }) {
       action={
         <Button
           component={RouterLink}
-          href={paths.product.root}
+          href={paths.dashboard.product.root}
           startIcon={<Iconify icon="eva:arrow-ios-back-fill" width={16} />}
           sx={{ mt: 3 }}
         >
@@ -123,16 +144,13 @@ export default function ProductShopDetailsView({ id }) {
 
   const renderProduct = product && (
     <>
-      <CustomBreadcrumbs
-        links={[
-          { name: 'Home', href: '/' },
-          {
-            name: 'Shop',
-            href: paths.product.root,
-          },
-          { name: product?.name },
-        ]}
-        sx={{ mb: 5 }}
+      <ProductDetailsToolbar
+        backLink={paths.dashboard.product.root}
+        editLink={paths.dashboard.product.edit(`${product?.id}`)}
+        liveLink={paths.product.details(`${product?.id}`)}
+        publish={publish || ''}
+        onChangePublish={handleChangePublish}
+        publishOptions={PRODUCT_PUBLISH_OPTIONS}
       />
 
       <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
@@ -141,12 +159,7 @@ export default function ProductShopDetailsView({ id }) {
         </Grid>
 
         <Grid xs={12} md={6} lg={5}>
-          <ProductDetailsSummary
-            product={product}
-            items={checkout?.items}
-            onAddCart={checkout?.onAddToCart}
-            onGotoStep={checkout?.onGotoStep}
-          />
+          <ProductDetailsSummary disabledActions product={product} />
         </Grid>
       </Grid>
 
@@ -188,10 +201,10 @@ export default function ProductShopDetailsView({ id }) {
               value: 'description',
               label: 'Description',
             },
-            {
-              value: 'reviews',
-              label: `Reviews (${product?.reviews?.length})`,
-            },
+            // {
+            //   value: 'reviews',
+            //   label: `Reviews (${product.reviews.length})`,
+            // },
           ].map((tab) => (
             <Tab key={tab.value} value={tab.value} label={tab.label} />
           ))}
@@ -201,35 +214,29 @@ export default function ProductShopDetailsView({ id }) {
           <ProductDetailsDescription description={product?.description} />
         )}
 
-        {currentTab === 'reviews' && (
+        {/* {currentTab === 'reviews' && (
           <ProductDetailsReview
-            ratings={product?.ratings}
-            reviews={product?.reviews}
-            totalRatings={product?.totalRatings}
-            totalReviews={product?.totalReviews}
+            ratings={product.ratings}
+            reviews={product.reviews}
+            totalRatings={product.totalRatings}
+            totalReviews={product.totalReviews}
           />
-        )}
+        )} */}
       </Card>
     </>
   );
 
   return (
-    <Container
-      maxWidth={settings.themeStretch ? false : 'lg'}
-      sx={{
-        mt: 5,
-        mb: 15,
-      }}
-    >
-      <CartIcon totalItems={checkout.totalItems} />
+    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+      {/* {productLoading && renderSkeleton}
 
-      {state?.isLoading && renderSkeleton}
+      {productError && renderError} */}
       {state?.err  && renderError}
-      {product && !state?.err && renderProduct}
+      {product?.id && renderProduct}
     </Container>
   );
 }
 
-ProductShopDetailsView.propTypes = {
+ProductDetailsView.propTypes = {
   id: PropTypes.string,
 };

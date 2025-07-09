@@ -245,12 +245,13 @@ export default function ProductNewEditForm({ currentProduct }) {
 
               <RHFTextField name="sku" label="Product SKU" />
 
-              <RHFTextField
-                name="quantity"
-                label="Quantity"
-                placeholder="0"
-                type="number"
-                InputLabelProps={{ shrink: true }}
+              
+
+              <RHFMultiSelect
+                checkbox
+                name="colors"
+                label="Colors"
+                options={PRODUCT_COLOR_NAME_OPTIONS}
               />
 
               <RHFSelect native name="category" label="Category" InputLabelProps={{ shrink: true }}>
@@ -265,14 +266,23 @@ export default function ProductNewEditForm({ currentProduct }) {
                 ))}
               </RHFSelect>
 
-              <RHFMultiSelect
-                checkbox
-                name="colors"
-                label="Colors"
-                options={PRODUCT_COLOR_NAME_OPTIONS}
+              <RHFTextField
+                name="quantity"
+                label="Quantity"
+                placeholder="0"
+                type="number"
+                InputLabelProps={{ shrink: true }}
               />
 
-              <RHFMultiSelect checkbox name="sizes" label="Sizes" options={PRODUCT_SIZE_OPTIONS} />
+              {/* <RHFMultiSelect checkbox name="sizes" label="Sizes" options={PRODUCT_SIZE_OPTIONS} /> */}
+              {/* <RHFSelect name="sizes" label="Sizes" options={PRODUCT_SIZE_OPTIONS} /> */}
+              <RHFSelect native name="size" label="size" InputLabelProps={{ shrink: true }}>
+                 {PRODUCT_SIZE_OPTIONS.map((classify) => (
+                      <option key={classify.label} value={classify.value}>
+                        {classify.label}
+                      </option>
+                    ))}
+              </RHFSelect>
             </Box>
 
             <RHFAutocomplete

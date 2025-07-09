@@ -17,10 +17,10 @@ import { LoadingScreen } from 'src/components/loading-screen';
 // const OverviewBookingPage = lazy(() => import('src/pages/dashboard/booking'));
 // const OverviewFilePage = lazy(() => import('src/pages/dashboard/file'));
 // // PRODUCT
-// const ProductDetailsPage = lazy(() => import('src/pages/dashboard/product/details'));
-// const ProductListPage = lazy(() => import('src/pages/dashboard/product/list'));
-// const ProductCreatePage = lazy(() => import('src/pages/dashboard/product/new'));
-// const ProductEditPage = lazy(() => import('src/pages/dashboard/product/edit'));
+const ProductDetailsPage = lazy(() => import('src/pages/dashboard/product/details'));
+const ProductListPage = lazy(() => import('src/pages/dashboard/product/list'));
+const ProductCreatePage = lazy(() => import('src/pages/dashboard/product/new'));
+const ProductEditPage = lazy(() => import('src/pages/dashboard/product/edit'));
 // // ORDER
 // const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
 // const OrderDetailsPage = lazy(() => import('src/pages/dashboard/order/details'));
@@ -82,18 +82,17 @@ export const dashboardRoutes = [
     children: [
       // { element: <IndexPage />, index: true },
       { element: <h1>sda</h1>, index: true },
-
       { path: 'ecommerce', element: <h1>ecommerce</h1> },
-      // {
-      //   path: 'product',
-      //   children: [
-      //     { element: <ProductListPage />, index: true },
-      //     { path: 'list', element: <ProductListPage /> },
-      //     { path: ':id', element: <ProductDetailsPage /> },
-      //     { path: 'new', element: <ProductCreatePage /> },
-      //     { path: ':id/edit', element: <ProductEditPage /> },
-      //   ],
-      // },
+      {
+        path: 'product',
+        children: [
+          { element: <ProductListPage />, index: true },
+          { path: 'list', element: <ProductListPage /> },
+          { path: ':id', element: <ProductDetailsPage /> },
+          { path: 'new', element: <ProductCreatePage /> },
+          { path: ':id/edit', element: <ProductEditPage /> },
+        ],
+      },
       // {
       //   path: 'order',
       //   children: [

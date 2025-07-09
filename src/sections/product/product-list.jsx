@@ -27,10 +27,10 @@ export default function ProductList({ products, loading, ...other }) {
   );
 
   const pageChanged = (num)=>{
-    console.log(num,"num")
     const pageNum = num.target.innerText
     setSearchParams({ page: pageNum });
   }
+
 
   return (
     <>
@@ -60,6 +60,7 @@ export default function ProductList({ products, loading, ...other }) {
             },
           }}
           onClick={(num)=>{pageChanged(num)}}
+          page={Number(searchParams.get('page')) || 1}
         />
       {/* )} */}
     </>

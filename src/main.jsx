@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+// import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Suspense } from 'react';
 import { BrowserRouter } from 'react-router-dom';
@@ -13,7 +13,7 @@ const initialState = {};
 const store = configureAppStore(initialState);
 const persistor = persistStore(store);
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <HelmetProvider>
@@ -25,5 +25,5 @@ createRoot(document.getElementById('root')).render(
         </HelmetProvider>
       </PersistGate>
     </Provider>
-  </StrictMode>,
+  // </StrictMode>,
 )

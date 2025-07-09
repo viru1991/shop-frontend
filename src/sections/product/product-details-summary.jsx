@@ -87,7 +87,7 @@ export default function ProductDetailsSummary({
   const { reset, watch, control, setValue, handleSubmit } = methods;
 
   const values = watch();
-  const available = stock.find((s) => s.size === values.size)?.quantity || 0;
+  const available = stock?.find((s) => s.size === values.size)?.quantity || 0;
 
   useEffect(() => {
     if (available > 0 && values.quantity === 0) {

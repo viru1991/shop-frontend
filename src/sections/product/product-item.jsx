@@ -27,7 +27,8 @@ export default function ProductItem({ product }) {
   const { _id, name, coverUrl, price, sizes, priceSale, newLabel, saleLabel,images,stock,colorOptions } =
     product;
 
-    const available = Array.isArray(stock) ? stock[0].quantity : JSON.parse(stock)[0].quantity;
+    // const available = Array.isArray(stock) ? stock[0].quantity : JSON.parse(stock)[0].quantity;
+    const available =  stock?.reduce((acc, item) => acc + (item.quantity || 0), 0);
     const colors = Array.isArray(colorOptions) ? colorOptions : JSON.parse(colorOptions)
   const linkTo = paths.product.details(_id);
 
