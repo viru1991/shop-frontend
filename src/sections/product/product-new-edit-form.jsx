@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
@@ -16,6 +16,7 @@ import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Button from '@mui/material/Button';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -42,16 +43,46 @@ import FormProvider, {
   RHFMultiCheckbox,
 } from 'src/components/hook-form';
 
+import { useDispatch, useSelector } from 'react-redux';
+import { executeACGAction, loadStart, resetStoreKey } from 'src/store/slice';
+import { acgSelector } from 'src/store/selector';
+import { createStructuredSelector } from 'reselect';
+import { ACTION_CODES, STORE_KEYS } from 'src/constants/apiConstants';
+
 // ----------------------------------------------------------------------
 
 export default function ProductNewEditForm({ currentProduct }) {
   const router = useRouter();
 
   const mdUp = useResponsive('up', 'md');
+  const dispatch = useDispatch();
+  const acgStateSelector = createStructuredSelector({
+    acgSlice: acgSelector()
+  });
+  const { acgSlice: state } = useSelector(acgStateSelector);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const [includeTaxes, setIncludeTaxes] = useState(false);
+
+  // const NewProductSchema = Yup.object().shape({
+  //   name: Yup.string().required('Name is required'),
+  //   images: Yup.array().min(1, 'Images is required'),
+  //   tags: Yup.array().min(2, 'Must have at least 2 tags'),
+  //   category: Yup.string().required('Category is required'),
+  //   price: Yup.number().moreThan(0, 'Price should not be $0.00'),
+  //   description: Yup.string().required('Description is required'),
+  //   // not required
+  //   taxes: Yup.number(),
+  //   newLabel: Yup.object().shape({
+  //     enabled: Yup.boolean(),
+  //     content: Yup.string(),
+  //   }),
+  //   saleLabel: Yup.object().shape({
+  //     enabled: Yup.boolean(),
+  //     content: Yup.string(),
+  //   }),
+  // });
 
   const NewProductSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
@@ -60,7 +91,6 @@ export default function ProductNewEditForm({ currentProduct }) {
     category: Yup.string().required('Category is required'),
     price: Yup.number().moreThan(0, 'Price should not be $0.00'),
     description: Yup.string().required('Description is required'),
-    // not required
     taxes: Yup.number(),
     newLabel: Yup.object().shape({
       enabled: Yup.boolean(),
@@ -70,7 +100,41 @@ export default function ProductNewEditForm({ currentProduct }) {
       enabled: Yup.boolean(),
       content: Yup.string(),
     }),
+    // ✅ Add stock here
+    stock: Yup.array().of(
+      Yup.object().shape({
+        quantity: Yup.number().min(0, 'Quantity must be >= 0').required('Required'),
+        size: Yup.string().required('Size is required'),
+        colors: Yup.array().min(1, 'Select at least one color'),
+      })
+    ),
   });
+
+
+
+  // const defaultValues = useMemo(
+  //   () => ({
+  //     name: currentProduct?.name || '',
+  //     description: currentProduct?.description || '',
+  //     subDescription: currentProduct?.subDescription || '',
+  //     images: currentProduct?.images || [],
+  //     //
+  //     code: currentProduct?.code || '',
+  //     sku: currentProduct?.sku || '',
+  //     price: currentProduct?.price || 0,
+  //     quantity: currentProduct?.quantity || 0,
+  //     priceSale: currentProduct?.priceSale || 0,
+  //     tags: currentProduct?.tags || [],
+  //     taxes: currentProduct?.taxes || 0,
+  //     gender: currentProduct?.gender || '',
+  //     category: currentProduct?.category || '',
+  //     colors: currentProduct?.colors || [],
+  //     sizes: currentProduct?.sizes || [],
+  //     newLabel: currentProduct?.newLabel || { enabled: false, content: '' },
+  //     saleLabel: currentProduct?.saleLabel || { enabled: false, content: '' },
+  //   }),
+  //   [currentProduct]
+  // );
 
   const defaultValues = useMemo(
     () => ({
@@ -78,7 +142,6 @@ export default function ProductNewEditForm({ currentProduct }) {
       description: currentProduct?.description || '',
       subDescription: currentProduct?.subDescription || '',
       images: currentProduct?.images || [],
-      //
       code: currentProduct?.code || '',
       sku: currentProduct?.sku || '',
       price: currentProduct?.price || 0,
@@ -88,13 +151,16 @@ export default function ProductNewEditForm({ currentProduct }) {
       taxes: currentProduct?.taxes || 0,
       gender: currentProduct?.gender || '',
       category: currentProduct?.category || '',
-      colors: currentProduct?.colors || [],
+      // colors: currentProduct?.colors || [],
       sizes: currentProduct?.sizes || [],
       newLabel: currentProduct?.newLabel || { enabled: false, content: '' },
       saleLabel: currentProduct?.saleLabel || { enabled: false, content: '' },
+      // ✅ Add this:
+      stock: currentProduct?.stock || [],
     }),
     [currentProduct]
   );
+
 
   const methods = useForm({
     resolver: yupResolver(NewProductSchema),
@@ -108,6 +174,13 @@ export default function ProductNewEditForm({ currentProduct }) {
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
+
+  const { control } = methods;
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'stock',
+  });
 
   const values = watch();
 
@@ -126,16 +199,76 @@ export default function ProductNewEditForm({ currentProduct }) {
   }, [currentProduct?.taxes, includeTaxes, setValue]);
 
   const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      enqueueSnackbar(currentProduct ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.product.root);
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
-    }
+    console.log(data, "dstst")
+
+    const formData = new FormData();
+
+    // Add all text fields
+    formData.append('name', data.name);
+    formData.append('description', data.description);
+    formData.append('subDescription', data.subDescription);
+    formData.append('code', data.code);
+    formData.append('sku', data.sku || '');
+    formData.append('price', data.price);
+    formData.append('quantity', data.quantity);
+    formData.append('priceSale', data.priceSale);
+    formData.append('taxes', data.taxes);
+    formData.append('category', data.category);
+    formData.append('brand', data.brand || '');
+    formData.append('discount', data.discount || 0);
+
+    // Convert arrays to JSON strings
+    formData.append('tags', JSON.stringify(data.tags));
+    formData.append('gender', JSON.stringify(data.gender));
+    formData.append('sizes', JSON.stringify(data.sizes));
+    formData.append('stock', JSON.stringify(data.stock));
+    formData.append('newLabel', JSON.stringify(data.newLabel));
+    formData.append('saleLabel', JSON.stringify(data.saleLabel));
+    formData.append('images', data.images)
+
+    // Add images — must be real File objects
+    data.images.forEach((file, idx) => {
+      console.log(file, "file")
+      formData.append('images', file);  // file must be File, not { path }
+    });
+    //   reset();
+    //   enqueueSnackbar(currentProduct ? 'Update success!' : 'Create success!');
+    //   router.push(paths.dashboard.product.root);
+    dispatch(loadStart())
+    const bundle = {
+
+      payload: {
+        urlPath: ACTION_CODES.ADD_PRODUCTS,
+        requestType: 'POST',
+        reqObj: formData,
+        contentType: 'multipart/form-data',
+      },
+      // uniqueScreenIdentifier: { productDetail: id },
+      storeKey: STORE_KEYS.ADDED_PRODUCTS
+    };
+    dispatch(executeACGAction(bundle));
   });
+
+  useEffect(() => {
+    const created = state[STORE_KEYS.ADDED_PRODUCTS];
+    console.log(created, "ASda")
+    if (created?.data?.acknowledged) {
+      enqueueSnackbar('Create success!', { variant: 'success' });
+
+      reset(); // ✅ clear form
+      router.push(paths.dashboard.product.root); // ✅ redirect
+
+      // ✅ clear storeKey so it doesn't re-trigger
+      dispatch(resetStoreKey({ storeKey: STORE_KEYS.ADDED_PRODUCTS }));
+    }
+
+    if (created?.error) {
+      enqueueSnackbar('Create failed!', { variant: 'error' });
+      dispatch(resetStoreKey({ storeKey: STORE_KEYS.ADDED_PRODUCTS }));
+    }
+  }, [state[STORE_KEYS.ADDED_PRODUCTS], enqueueSnackbar, dispatch, reset, router]);
+
+
 
   const handleDrop = useCallback(
     (acceptedFiles) => {
@@ -233,7 +366,7 @@ export default function ProductNewEditForm({ currentProduct }) {
 
           <Stack spacing={3} sx={{ p: 3 }}>
             <Box
-              columnGap={2}
+              columnGap={3}
               rowGap={3}
               display="grid"
               gridTemplateColumns={{
@@ -243,16 +376,16 @@ export default function ProductNewEditForm({ currentProduct }) {
             >
               <RHFTextField name="code" label="Product Code" />
 
-              <RHFTextField name="sku" label="Product SKU" />
+              {/* <RHFTextField name="sku" label="Product SKU" /> */}
 
-              
 
-              <RHFMultiSelect
+
+              {/* <RHFMultiSelect
                 checkbox
                 name="colors"
                 label="Colors"
                 options={PRODUCT_COLOR_NAME_OPTIONS}
-              />
+              /> */}
 
               <RHFSelect native name="category" label="Category" InputLabelProps={{ shrink: true }}>
                 {PRODUCT_CATEGORY_GROUP_OPTIONS.map((category) => (
@@ -266,25 +399,81 @@ export default function ProductNewEditForm({ currentProduct }) {
                 ))}
               </RHFSelect>
 
-              <RHFTextField
+
+
+              {/* <RHFMultiSelect checkbox name="sizes" label="Sizes" options={PRODUCT_SIZE_OPTIONS} /> */}
+              {/* <RHFTextField
                 name="quantity"
                 label="Quantity"
                 placeholder="0"
                 type="number"
                 InputLabelProps={{ shrink: true }}
               />
-
-              {/* <RHFMultiSelect checkbox name="sizes" label="Sizes" options={PRODUCT_SIZE_OPTIONS} /> */}
-              {/* <RHFSelect name="sizes" label="Sizes" options={PRODUCT_SIZE_OPTIONS} /> */}
               <RHFSelect native name="size" label="size" InputLabelProps={{ shrink: true }}>
-                 {PRODUCT_SIZE_OPTIONS.map((classify) => (
-                      <option key={classify.label} value={classify.value}>
-                        {classify.label}
-                      </option>
-                    ))}
-              </RHFSelect>
+                {PRODUCT_SIZE_OPTIONS.map((classify) => (
+                  <option key={classify.label} value={classify.value}>
+                    {classify.label}
+                  </option>
+                ))}
+              </RHFSelect> */}
             </Box>
+            <Stack spacing={2}>
+              {fields.map((item, index) => (
+                <Stack
+                  key={item.id}
+                  direction={{ xs: 'column', md: 'row' }}
+                  spacing={2}
+                  alignItems="center"
+                >
+                  <Box sx={{ flex: 1 }}>
+                    <RHFTextField
+                      name={`stock.${index}.quantity`}
+                      label="Quantity"
+                      type="number"
+                      placeholder="0"
+                    />
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <RHFSelect
+                      native
+                      name={`stock.${index}.size`}
+                      label="Size"
+                      InputLabelProps={{ shrink: true }}
+                    >
+                      <option value={`stock.${index}.size`} disabled>Select size</option>
+                      {PRODUCT_SIZE_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.value}
+                        </option>
+                      ))}
+                    </RHFSelect>
+                  </Box>
+                  <Stack spacing={1} sx={{ flex: 1 }}>
+                    <RHFMultiSelect
+                      name={`stock.${index}.color`}
+                      label="Colors"
+                      checkbox
+                      options={PRODUCT_COLOR_NAME_OPTIONS}
+                      showColor={true}
+                    />
+                  </Stack>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => remove(index)}
+                  >
+                    Remove
+                  </Button>
+                </Stack>
+              ))}
 
+              <Button
+                variant="contained"
+                onClick={() => append({ quantity: 0, size: '', color: [] })}
+              >
+                Add Stock Row
+              </Button>
+            </Stack>
             <RHFAutocomplete
               name="tags"
               label="Tags"

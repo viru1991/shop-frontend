@@ -28,10 +28,11 @@ export default function ProductItem({ product }) {
     product;
 
     // const available = Array.isArray(stock) ? stock[0].quantity : JSON.parse(stock)[0].quantity;
-    const available =  stock?.reduce((acc, item) => acc + (item.quantity || 0), 0);
-    const colors = Array.isArray(colorOptions) ? colorOptions : JSON.parse(colorOptions)
+  const available =  stock?.reduce((acc, item) => acc + (item.quantity || 0), 0);
+  const colors = Array.isArray(colorOptions) ? colorOptions : JSON.parse(colorOptions)
+  const showColors = [...new Set(stock.flatMap(item => item.color))];
   const linkTo = paths.product.details(_id);
-
+  console.log(showColors,colors,"col")
   const handleAddCart = async () => {
     const newProduct = {
      id: _id,
@@ -39,7 +40,7 @@ export default function ProductItem({ product }) {
       coverUrl,
       available,
       price,
-      colors: [colors[0]],
+      colors: [colors[0] != undefined ? colors[0] : showColors],
       size: stock[0]?.size,
       quantity: 1,
     };
@@ -119,7 +120,7 @@ export default function ProductItem({ product }) {
       </Link>
 
       <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <ColorPreview colors={colors} />
+        <ColorPreview colors={colors?.length > 0 && colors[0]!= "" ? colors : showColors} />
 
         <Stack direction="row" spacing={0.5} sx={{ typography: 'subtitle1' }}>
           {priceSale && (

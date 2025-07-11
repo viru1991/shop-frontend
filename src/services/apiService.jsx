@@ -19,13 +19,11 @@ class ApiService {
             return {
                 'Content-Type': 'multipart/form-data',
                 Authorization: getJWTToken(),
-                "ngrok-skip-browser-warning":true
             };
         } else {
             return {
                 'Content-Type': 'application/json;charset=UTF-8',
                 Authorization:  getJWTToken(),
-                "ngrok-skip-browser-warning":true
             };
         }
     };
@@ -186,6 +184,7 @@ class ApiService {
     }
 
     post(path, payload, options = {}, contentType = null) {
+        console.log(contentType,payload,"in post")
         return this.service
             .request(this.getRequestObject('POST', path, payload, options, contentType))
             .then((response) => {

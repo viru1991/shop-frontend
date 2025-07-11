@@ -15,7 +15,7 @@ const fetchData = async (payload) => {
         if (API_METHOD === 'GET') {
             response = await ApiService.get(API_URL, payload?.payload?.reqObj);
         } else if (API_METHOD === 'POST') {
-            response = await ApiService.post(API_URL, payload?.payload?.reqObj);
+            response = await ApiService.post(API_URL, payload?.payload?.reqObj,{},payload?.payload?.contentType);
         } else if (API_METHOD === 'PUT') {
             response = await ApiService.put(API_URL, payload?.payload?.reqObj);
         } else if (API_METHOD === 'DELETE') {

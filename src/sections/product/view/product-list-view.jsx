@@ -41,7 +41,7 @@ import {
   RenderCellCreatedAt,
 } from '../product-table-row';
 import { useDispatch, useSelector } from 'react-redux';
-import { executeACGAction,loadStart } from 'src/store/slice';
+import { executeACGAction,loadStart,resetStoreKey } from 'src/store/slice';
 import { acgSelector } from 'src/store/selector';
 import { createStructuredSelector } from 'reselect';
 import { ACTION_CODES, STORE_KEYS } from 'src/constants/apiConstants';
@@ -96,7 +96,7 @@ useEffect(() => {
     //   setSearchParams({ page: '1' });
     //   return;
     // }
-    if(!state[STORE_KEYS.PRODUCT_LIST]?.data){
+    // if(!state[STORE_KEYS.PRODUCT_LIST]?.data){
     loadStart()
     // ✅ If page param exists → load with it
     const bundle = {
@@ -110,7 +110,7 @@ useEffect(() => {
     };
 
     dispatch(executeACGAction(bundle));  
-    }
+    // }
   },[])
 
   // useEffect(() => {
@@ -154,16 +154,89 @@ useEffect(() => {
     setFilters(defaultFilters);
   }, []);
 
+  // const handleDeleteRow = useCallback(
+  //   (id) => {
+  //     const deleteRow = tableData.filter((row) => row.id !== id);
+  //     console.log(id,"deleted") 
+  //     enqueueSnackbar('Delete success!');
+  //     setTableData(deleteRow);
+  //   },
+  //   [enqueueSnackbar, tableData]
+  // );
+
   const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
+  (id) => {
+    loadStart();
 
-      enqueueSnackbar('Delete success!');
+    const bundle = {
+      payload: {
+        urlPath: ACTION_CODES.DELETE_PRODUCT,
+        requestType: 'POST',
+        reqObj: { id }
+      },
+      uniqueScreenIdentifier: { page: 1 },
+      storeKey: STORE_KEYS.DELETED_PRODUCT
+    };
 
-      setTableData(deleteRow);
-    },
-    [enqueueSnackbar, tableData]
-  );
+    dispatch(executeACGAction(bundle));
+
+    // ❌ No local state change here
+    // ❌ No snackbar here
+  },
+  [dispatch]
+);
+
+
+// useEffect(() => {
+//   const deleted = state[STORE_KEYS.DELETED_PRODUCT];
+
+//   if (deleted?.data?.message == 'Product deleted successfully') {
+//     enqueueSnackbar('Delete success!', { variant: 'success' });
+
+//     setTableData((prev) =>
+//       prev.filter((row) => row.id !== deleted?.data?.id) // Or whatever your API returns
+//     );
+//   } else if (!deleted?.data?.message) {
+//     enqueueSnackbar('Delete failed!', { variant: 'error' });
+//   }
+// }, [state[STORE_KEYS.DELETED_PRODUCT], enqueueSnackbar]);
+
+
+
+useEffect(() => {
+  const deleted = state[STORE_KEYS.DELETED_PRODUCT];
+
+  if (deleted?.data?.message === 'Product deleted successfully') {
+    enqueueSnackbar('Delete success!', { variant: 'success' });
+
+    // Remove from local state immediately
+    setTableData((prev) =>
+      prev.filter((row) => row.id !== deleted?.data?.id)
+    );
+
+    // ✅ Re-fetch the full product list to sync Redux
+    dispatch(executeACGAction({
+      payload: {
+        urlPath: ACTION_CODES.GET_PRODUCTS,
+        requestType: 'GET',
+        reqObj: { page: 1 }, // Or use your current page param
+      },
+      uniqueScreenIdentifier: { page: 1 },
+      storeKey: STORE_KEYS.PRODUCT_LIST
+    }));
+
+    // Clear the DELETED_PRODUCT key so the effect does not re-fire
+    dispatch(resetStoreKey({ storeKey: STORE_KEYS.DELETED_PRODUCT }));
+
+  } else if (deleted?.data?.message && deleted?.data?.message !== 'Product deleted successfully') {
+    enqueueSnackbar('Delete failed!', { variant: 'error' });
+
+    dispatch(resetStoreKey({ storeKey: STORE_KEYS.DELETED_PRODUCT }));
+  }
+}, [state[STORE_KEYS.DELETED_PRODUCT], enqueueSnackbar, dispatch]);
+
+
+
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !selectedRowIds.includes(row.id));

@@ -69,6 +69,77 @@ RHFSelect.propTypes = {
 
 // ----------------------------------------------------------------------
 
+// export function RHFMultiSelect({
+//   name,
+//   chip,
+//   label,
+//   options,
+//   checkbox,
+//   placeholder,
+//   helperText,
+//   ...other
+// }) {
+//   const { control } = useFormContext();
+
+//   const renderValues = (selectedIds) => {
+//     const selectedItems = options.filter((item) => selectedIds.includes(item.value));
+
+//     if (!selectedItems.length && placeholder) {
+//       return <Box sx={{ color: 'text.disabled' }}>{placeholder}</Box>;
+//     }
+
+//     if (chip) {
+//       return (
+//         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+//           {selectedItems.map((item) => (
+//             <Chip key={item.value} size="small" label={item.label} />
+//           ))}
+//         </Box>
+//       );
+//     }
+
+//     return selectedItems.map((item) => item.label).join(', ');
+//   };
+
+//   return (
+//     <Controller
+//       name={name}
+//       control={control}
+//       render={({ field, fieldState: { error } }) => (
+//         <FormControl error={!!error} {...other}>
+//           {label && <InputLabel id={name}> {label} </InputLabel>}
+
+//           <Select
+//             {...field}
+//             multiple
+//             displayEmpty={!!placeholder}
+//             id={`multiple-${name}`}
+//             labelId={name}
+//             label={label}
+//             renderValue={renderValues}
+//           >
+//             {options.map((option) => {
+//               const selected = field?.value?.includes(option?.value);
+
+//               return (
+//                 <MenuItem key={option?.value} value={option?.value}>
+//                   {checkbox && <Checkbox size="small" disableRipple checked={selected} />}
+
+//                   {option.label}
+//                 </MenuItem>
+//               );
+//             })}
+//           </Select>
+
+//           {(!!error || helperText) && (
+//             <FormHelperText error={!!error}>{error ? error?.message : helperText}</FormHelperText>
+//           )}
+//         </FormControl>
+//       )}
+//     />
+//   );
+// }
+
 export function RHFMultiSelect({
   name,
   chip,
@@ -77,6 +148,7 @@ export function RHFMultiSelect({
   checkbox,
   placeholder,
   helperText,
+  showColor,
   ...other
 }) {
   const { control } = useFormContext();
@@ -92,7 +164,22 @@ export function RHFMultiSelect({
       return (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
           {selectedItems.map((item) => (
-            <Chip key={item.value} size="small" label={item.label} />
+            <Chip
+              key={item.value}
+              size="small"
+              label={item.label}
+              icon={
+                <Box
+                  sx={{
+                    width: 12,
+                    height: 12,
+                    backgroundColor: item.value,
+                    borderRadius: '2px',
+                    marginLeft: '4px',
+                  }}
+                />
+              }
+            />
           ))}
         </Box>
       );
@@ -106,7 +193,7 @@ export function RHFMultiSelect({
       name={name}
       control={control}
       render={({ field, fieldState: { error } }) => (
-        <FormControl error={!!error} {...other}>
+        <FormControl error={!!error} {...other} fullWidth>
           {label && <InputLabel id={name}> {label} </InputLabel>}
 
           <Select
@@ -119,12 +206,24 @@ export function RHFMultiSelect({
             renderValue={renderValues}
           >
             {options.map((option) => {
-              const selected = field.value.includes(option.value);
+              const selected = (field?.value || []).includes(option?.value);
 
               return (
-                <MenuItem key={option.value} value={option.value}>
+                <MenuItem key={option?.value} value={option?.value}>
                   {checkbox && <Checkbox size="small" disableRipple checked={selected} />}
-
+   {showColor && (
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 16,
+                      borderRadius: '4px',
+                      backgroundColor: option?.value,
+                      display: 'inline-block',
+                      marginRight: 1,
+                      border: '1px solid #ccc',
+                    }}
+                  />
+)}
                   {option.label}
                 </MenuItem>
               );
@@ -132,13 +231,16 @@ export function RHFMultiSelect({
           </Select>
 
           {(!!error || helperText) && (
-            <FormHelperText error={!!error}>{error ? error?.message : helperText}</FormHelperText>
+            <FormHelperText error={!!error}>
+              {error ? error?.message : helperText}
+            </FormHelperText>
           )}
         </FormControl>
       )}
     />
   );
 }
+
 
 RHFMultiSelect.propTypes = {
   checkbox: PropTypes.bool,
@@ -148,4 +250,5 @@ RHFMultiSelect.propTypes = {
   name: PropTypes.string,
   options: PropTypes.array,
   placeholder: PropTypes.string,
+  showColor:PropTypes.bool
 };

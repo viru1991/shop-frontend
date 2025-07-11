@@ -42,7 +42,7 @@ export default function ProductDetailsSummary({
     // sizes,
     price,
     coverUrl,
-    colorOptions:colors,
+    // colorOptions:colors,
     newLabel,
     // available,
     priceSale,
@@ -64,6 +64,8 @@ export default function ProductDetailsSummary({
   //   (item) => item.id === _id && item.size === defaultSize
   // );
   
+const allColors = [...new Set(stock?.flatMap(s => s.color) || [])];
+
 
 
   const defaultValues = {
@@ -72,7 +74,8 @@ export default function ProductDetailsSummary({
     coverUrl,
     // available,
     price,
-    colors:colors ? colors[0] : [],
+    // colors:colors ? colors[0] : [],
+      colors: allColors[0] || [],
     // size: stock ? stock[0]?.size : [],
     // quantity: available < 1 ? 0 : 1,
     size: defaultSize,
@@ -88,7 +91,8 @@ export default function ProductDetailsSummary({
 
   const values = watch();
   const available = stock?.find((s) => s.size === values.size)?.quantity || 0;
-
+const selectedStock = stock?.find(s => s.size === values.size);
+const availableColors = selectedStock ? selectedStock.color : [];
   useEffect(() => {
     if (available > 0 && values.quantity === 0) {
       setValue('quantity', 1);
@@ -97,6 +101,21 @@ export default function ProductDetailsSummary({
       setValue('quantity', 0);
     }
   }, [available, values.quantity, setValue]);
+
+  useEffect(() => {
+  if (!availableColors.includes(values.colors)) {
+    setValue('colors', availableColors[0] || '');
+  }
+}, [values.size, availableColors, values.colors, setValue]);
+
+useEffect(() => {
+  // When size changes, always reset quantity to 1 (or 0 if out of stock)
+  if (available > 0) {
+    setValue('quantity', 1);
+  } else {
+    setValue('quantity', 0);
+  }
+}, [values.size, available, setValue]);
 
   const existingItem = items?.find(
     (item) =>
@@ -210,7 +229,7 @@ export default function ProductDetailsSummary({
       </Link>
     </Stack>
   );
-
+  console.log(allColors,"allc")
   const renderColorOptions = (
     <Stack direction="row">
       <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
@@ -222,9 +241,11 @@ export default function ProductDetailsSummary({
         control={control}
         render={({ field }) => (
           <ColorPicker
-            colors={colors || []}
+            // colors={colors || []}
+             colors={allColors || []}
             selected={field.value}
             onSelectColor={(color) => field.onChange(color)}
+            availableColors={availableColors}
             limit={4}
           />
         )}

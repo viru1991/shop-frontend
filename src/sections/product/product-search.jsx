@@ -85,9 +85,9 @@ export default function ProductSearch({ query, results, onSearch, hrefItem, load
         const parts = parse(product.name, matches);
 
         return (
-          <Box component="li" {...props} onClick={() => handleClick(product.id)} key={product.id}>
+          <Box component="li" {...props} onClick={() => handleClick(product?._id)} key={product?._id}>
             <Avatar
-              key={product.id}
+              key={product?._id}
               alt={product.name}
               src={product.coverUrl}
               variant="rounded"

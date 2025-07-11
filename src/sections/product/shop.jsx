@@ -66,9 +66,11 @@ const { acgSlice: state } = useSelector(acgStateSelector);
   const [searchQuery, setSearchQuery] = useState('');
 
   const debouncedQuery = useDebounce(searchQuery);
+  const [products,setProducts] = useState([])
 
   const [filters, setFilters] = useState(defaultFilters);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchResults,setSearchResults] = useState([])
 
   // const { productsLoading, productsEmpty } = useGetProducts();
 
@@ -84,6 +86,13 @@ const { acgSlice: state } = useSelector(acgStateSelector);
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
+
+  useEffect(() => {
+    const filteredProducts = products.filter((ele) =>
+  ele?.name?.toLowerCase().includes(debouncedQuery.toLowerCase())
+)
+  setSearchResults(filteredProducts)
+  },[debouncedQuery])
 
   const dataFiltered = applyFilter({
     inputData: productListMock.products,
@@ -145,6 +154,12 @@ const { acgSlice: state } = useSelector(acgStateSelector);
   }, [page, setSearchParams, dispatch]);
   
 
+  useEffect(() => {
+if(state[STORE_KEYS.PRODUCT_LIST]?.data?.length){
+  setProducts(state[STORE_KEYS.PRODUCT_LIST]?.data)
+}
+  },[state[STORE_KEYS.PRODUCT_LIST]?.data])
+
   const renderFilters = (
     <Stack
       spacing={3}
@@ -154,8 +169,8 @@ const { acgSlice: state } = useSelector(acgStateSelector);
     >
       <ProductSearch
         query={debouncedQuery}
-        // results={searchResults}
-        results={[{name:'shoes'}]}
+        results={searchResults}
+        // results={[]}
         onSearch={handleSearch}
         loading={false}
         hrefItem={(id) => paths.product.details(id)}
@@ -228,7 +243,7 @@ const { acgSlice: state } = useSelector(acgStateSelector);
       </Stack>
 
       {/* {(notFound || productsEmpty) && renderNotFound} */}
-      <ProductList products={state[STORE_KEYS.PRODUCT_LIST]?.data} loading={state?.loading} />
+      <ProductList products={products} loading={state?.loading} />
     </Container>
   );
 }
