@@ -355,8 +355,8 @@ useEffect(() => {
         typography: 'body2',
       }}
     >
-      <Rating size="small" value={totalRatings} precision={0.1} readOnly sx={{ mr: 1 }} />
-      {`(${fShortenNumber(totalReviews)} reviews)`}
+      <Rating size="small" value={4.3} precision={0.1} readOnly sx={{ mr: 1 }} />
+      {`(${fShortenNumber(55)} reviews)`}
     </Stack>
   );
 

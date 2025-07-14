@@ -13,7 +13,12 @@ import NavItem from './nav-item';
 export default function NavList({ data, depth, slotProps }) {
   const pathname = usePathname();
 
-  const active = useActiveLink(data.path, !!data.children);
+const isDynamic = data.path.includes(':');
+const isParent = !!data.children;
+const shouldDeepMatch = (isParent && !data.exact); // only parent folders deep match
+const active = useActiveLink(data.path, shouldDeepMatch);
+  // const active = useActiveLink(data.path, !!data.children);
+
 
   const [openMenu, setOpenMenu] = useState(active);
 

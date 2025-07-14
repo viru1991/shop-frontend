@@ -385,7 +385,7 @@ useEffect(() => {
 
         <Card
           sx={{
-            height: { xs: 800, md:800 },
+            // height: { xs: 800, md:800 },
             flexGrow: { md: 1 },
             display: { md: 'flex' },
             flexDirection: { md: 'column' },
@@ -401,7 +401,7 @@ useEffect(() => {
             pageSizeOptions={[5, 10, 25]}
             initialState={{
               pagination: {
-                paginationModel: { pageSize: 10 },
+                paginationModel: { pageSize: 5 },
               },
             }}
             onRowSelectionModelChange={(newSelectionModel) => {

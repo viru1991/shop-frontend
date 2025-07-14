@@ -29,6 +29,7 @@ import { useAuthContext } from 'src/context/hooks';
 import { reset } from 'src/store/slice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'src/routes/hooks';
+import { removeLocalStorage } from 'src/utilities/storageUtility';
 // ----------------------------------------------------------------------
 
 export default function Header() {
@@ -39,6 +40,8 @@ export default function Header() {
   const router = useRouter();
   const offsetTop = useOffSetTop(HEADER.H_DESKTOP);
   const logout = () => {
+    removeLocalStorage('token');
+    removeLocalStorage('role');
     dispatch(reset())
     router.replace('/');
   }

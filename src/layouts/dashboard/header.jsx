@@ -78,7 +78,7 @@ export default function Header({ onOpenNav }) {
 
         <AccountPopover />
 
-        <button onClick={logout}>logout</button>
+        {/* <button onClick={logout}>logout</button> */}
       </Stack>
     </>
   );

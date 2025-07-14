@@ -203,50 +203,118 @@ export default function ProductNewEditForm({ currentProduct }) {
 
     const formData = new FormData();
 
-    // Add all text fields
-    formData.append('name', data.name);
-    formData.append('description', data.description);
-    formData.append('subDescription', data.subDescription);
-    formData.append('code', data.code);
-    formData.append('sku', data.sku || '');
-    formData.append('price', data.price);
-    formData.append('quantity', data.quantity);
-    formData.append('priceSale', data.priceSale);
-    formData.append('taxes', data.taxes);
-    formData.append('category', data.category);
-    formData.append('brand', data.brand || '');
-    formData.append('discount', data.discount || 0);
+    console.log(data, currentProduct)
+    const removedImages = (currentProduct?.images || []).filter(
+      (url) => !(data.images || []).includes(url)
+    );
 
-    // Convert arrays to JSON strings
-    formData.append('tags', JSON.stringify(data.tags));
-    formData.append('gender', JSON.stringify(data.gender));
-    formData.append('sizes', JSON.stringify(data.sizes));
-    formData.append('stock', JSON.stringify(data.stock));
-    formData.append('newLabel', JSON.stringify(data.newLabel));
-    formData.append('saleLabel', JSON.stringify(data.saleLabel));
-    formData.append('images', data.images)
+    const newImages = (data.images || []).filter(
+      (img) => typeof img !== 'string'
+    );
 
-    // Add images — must be real File objects
-    data.images.forEach((file, idx) => {
-      console.log(file, "file")
-      formData.append('images', file);  // file must be File, not { path }
-    });
-    //   reset();
-    //   enqueueSnackbar(currentProduct ? 'Update success!' : 'Create success!');
-    //   router.push(paths.dashboard.product.root);
-    dispatch(loadStart())
-    const bundle = {
+    const keptImages = (data.images || []).filter(
+      (img) => typeof img === 'string'
+    );
 
-      payload: {
-        urlPath: ACTION_CODES.ADD_PRODUCTS,
-        requestType: 'POST',
-        reqObj: formData,
-        contentType: 'multipart/form-data',
-      },
-      // uniqueScreenIdentifier: { productDetail: id },
-      storeKey: STORE_KEYS.ADDED_PRODUCTS
-    };
-    dispatch(executeACGAction(bundle));
+    console.log('Removed Images:', removedImages);
+    // console.log('New Images:', newImages,data?.images);
+    // console.log('Kept Images:', keptImages);
+    if (!currentProduct) {
+      // Add all text fields
+      formData.append('name', data.name);
+      formData.append('description', data.description);
+      formData.append('subDescription', data.subDescription);
+      formData.append('code', data.code);
+      formData.append('sku', data.sku || '');
+      formData.append('price', data.price);
+      formData.append('quantity', data.quantity);
+      formData.append('priceSale', data.priceSale);
+      formData.append('taxes', data.taxes);
+      formData.append('category', data.category);
+      formData.append('brand', data.brand || '');
+      formData.append('discount', data.discount || 0);
+
+      // Convert arrays to JSON strings
+      formData.append('tags', JSON.stringify(data.tags));
+      formData.append('gender', JSON.stringify(data.gender));
+      formData.append('sizes', JSON.stringify(data.sizes));
+      formData.append('stock', JSON.stringify(data.stock));
+      formData.append('newLabel', JSON.stringify(data.newLabel));
+      formData.append('saleLabel', JSON.stringify(data.saleLabel));
+      formData.append('images', data.images)
+
+      // Add images — must be real File objects
+      data.images.forEach((file, idx) => {
+        console.log(file, "file")
+        formData.append('images', file);  // file must be File, not { path }
+      });
+      //   reset();
+      //   enqueueSnackbar(currentProduct ? 'Update success!' : 'Create success!');
+      //   router.push(paths.dashboard.product.root);
+      dispatch(loadStart())
+      const bundle = {
+
+        payload: {
+          urlPath: ACTION_CODES.ADD_PRODUCTS,
+          requestType: 'POST',
+          reqObj: formData,
+          contentType: 'multipart/form-data',
+        },
+        // uniqueScreenIdentifier: { productDetail: id },
+        storeKey: STORE_KEYS.ADDED_PRODUCTS
+      };
+      dispatch(executeACGAction(bundle));
+    }
+    if (currentProduct) {
+      console.log(data, "AD")
+      console.log('Removed Images:', removedImages);
+      console.log('New Images:', newImages, data?.images);
+      console.log('Kept Images:', keptImages);
+      formData.append('_id', currentProduct?._id);
+      formData.append('name', data.name);
+      formData.append('description', data.description);
+      formData.append('subDescription', data.subDescription);
+      formData.append('code', data.code);
+      formData.append('sku', data.sku || '');
+      formData.append('price', data.price);
+      formData.append('quantity', data.quantity);
+      formData.append('priceSale', data.priceSale);
+      formData.append('taxes', data.taxes);
+      formData.append('category', data.category);
+      formData.append('brand', data.brand || '');
+      formData.append('discount', data.discount || 0);
+
+      // Convert arrays to JSON strings
+      formData.append('tags', JSON.stringify(data.tags));
+      formData.append('gender', JSON.stringify(data.gender));
+      formData.append('sizes', JSON.stringify(data.sizes));
+      formData.append('stock', JSON.stringify(data.stock));
+      formData.append('newLabel', JSON.stringify(data.newLabel));
+      formData.append('saleLabel', JSON.stringify(data.saleLabel));
+      formData.append('keptImages', JSON.stringify(keptImages));
+
+      // ✅ Add removed URLs as JSON if needed:
+      formData.append('removedImages', JSON.stringify(removedImages));
+
+      // ✅ Add new files:
+      newImages.forEach((file) => {
+        formData.append('newImages', file);
+      });
+      dispatch(loadStart())
+      const bundle = {
+
+        payload: {
+          urlPath: ACTION_CODES.EDIT_PRODUCT,
+          requestType: 'POST',
+          reqObj: formData,
+          contentType: 'multipart/form-data',
+        },
+        // uniqueScreenIdentifier: { productDetail: id },
+        storeKey: STORE_KEYS.EDITED_PRODUCT
+      };
+      dispatch(executeACGAction(bundle));
+    }
+
   });
 
   useEffect(() => {
@@ -267,6 +335,27 @@ export default function ProductNewEditForm({ currentProduct }) {
       dispatch(resetStoreKey({ storeKey: STORE_KEYS.ADDED_PRODUCTS }));
     }
   }, [state[STORE_KEYS.ADDED_PRODUCTS], enqueueSnackbar, dispatch, reset, router]);
+
+
+
+  useEffect(() => {
+  const edited = state[STORE_KEYS.EDITED_PRODUCT];
+  console.log(edited, "EDITED_PRODUCT result");
+
+  if (edited?.data?.result?.acknowledged) {
+    enqueueSnackbar('Update success!', { variant: 'success' });
+
+    reset(); // ✅ clear form
+    router.push(paths.dashboard.product.root); // ✅ redirect
+
+    dispatch(resetStoreKey({ storeKey: STORE_KEYS.EDITED_PRODUCT }));
+  }
+
+  if (edited?.error) {
+    enqueueSnackbar('Update failed!', { variant: 'error' });
+    dispatch(resetStoreKey({ storeKey: STORE_KEYS.EDITED_PRODUCT }));
+  }
+}, [state[STORE_KEYS.EDITED_PRODUCT], enqueueSnackbar, dispatch, reset, router]);
 
 
 

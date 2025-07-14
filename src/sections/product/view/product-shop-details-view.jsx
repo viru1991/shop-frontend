@@ -30,7 +30,7 @@ import ProductDetailsCarousel from '../product-details-carousel';
 import ProductDetailsDescription from '../product-details-description';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { executeACGAction, reset,loadStart } from 'src/store/slice';
+import { executeACGAction, reset,loadStart,resetStoreKey  } from 'src/store/slice';
 import { acgSelector } from 'src/store/selector';
 import { createStructuredSelector } from 'reselect';
 import { ACTION_CODES, STORE_KEYS } from 'src/constants/apiConstants';
@@ -78,6 +78,13 @@ export default function ProductShopDetailsView({ id }) {
 
   // const [product,setProduct] = useState({})
   const product = state?.productDetail?.data[0]
+
+  useEffect(() => {
+  // if (state?.err) {
+    console.log(state?.err,"error")
+    // dispatch(resetStoreKey ({ storeKey: STORE_KEYS.PRODUCT_DETAIL }));
+  // }
+}, [state?.err]);
 
   useEffect(() => {
     dispatch(loadStart())

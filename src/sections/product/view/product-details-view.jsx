@@ -232,7 +232,7 @@ export default function ProductDetailsView({ id }) {
 
       {productError && renderError} */}
       {state?.err  && renderError}
-      {product?.id && renderProduct}
+      {product && !state?.err && renderProduct}
     </Container>
   );
 }

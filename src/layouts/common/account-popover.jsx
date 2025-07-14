@@ -15,10 +15,14 @@ import { useRouter } from 'src/routes/hooks';
 import { useMockedUser } from 'src/hooks/use-mocked-user';
 
 // import { useAuthContext } from 'src/auth/hooks';
+import { useAuthContext } from 'src/context/hooks';
 
 import { varHover } from 'src/components/animate';
-// import { useSnackbar } from 'src/components/snackbar';
-// import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { useSnackbar } from 'src/components/snackbar';
+import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { removeLocalStorage } from 'src/utilities/storageUtility';
+import { useDispatch, useSelector } from 'react-redux';
+import { executeACGAction, reset } from 'src/store/slice';
 
 // ----------------------------------------------------------------------
 
@@ -44,20 +48,24 @@ export default function AccountPopover() {
 
   const { user } = useMockedUser();
 
-  // const { logout } = useAuthContext();
+  const { logout } = useAuthContext();
 
-  // const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
 
-  // const popover = usePopover();
+  const popover = usePopover();
+  const dispatch = useDispatch();
 
   const handleLogout = async () => {
     try {
-      // await logout();
-      // popover.onClose();
+      await logout();
+      removeLocalStorage('token');
+      removeLocalStorage('role');
+      dispatch(reset())
+      popover.onClose();
       router.replace('/');
     } catch (error) {
       console.error(error);
-      // enqueueSnackbar('Unable to logout!', { variant: 'error' });
+      enqueueSnackbar('Unable to logout!', { variant: 'error' });
     }
   };
 
@@ -73,15 +81,15 @@ export default function AccountPopover() {
         whileTap="tap"
         whileHover="hover"
         variants={varHover(1.05)}
-        // onClick={popover.onOpen}
+        onClick={popover.onOpen}
         sx={{
           width: 40,
           height: 40,
           background: (theme) => alpha(theme.palette.grey[500], 0.08),
-          // ...(popover.open && {
-          //   background: (theme) =>
-          //     `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
-          // }),
+          ...(popover.open && {
+            background: (theme) =>
+              `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
+          }),
         }}
       >
         <Avatar
@@ -97,7 +105,7 @@ export default function AccountPopover() {
         </Avatar>
       </IconButton>
 
-      {/* <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 200, p: 0 }}>
+      <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 200, p: 0 }}>
         <Box sx={{ p: 2, pb: 1.5 }}>
           <Typography variant="subtitle2" noWrap>
             {user?.displayName}
@@ -126,7 +134,7 @@ export default function AccountPopover() {
         >
           Logout
         </MenuItem>
-      </CustomPopover> */}
+      </CustomPopover>
     </>
   );
 }

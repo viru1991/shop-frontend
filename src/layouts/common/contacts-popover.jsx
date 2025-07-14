@@ -14,12 +14,12 @@ import { _contacts } from 'src/_mock';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { varHover } from 'src/components/animate';
-// import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
 export default function ContactsPopover() {
-  // const popover = usePopover();
+  const popover = usePopover();
 
   return (
     <>
@@ -28,18 +28,18 @@ export default function ContactsPopover() {
         whileTap="tap"
         whileHover="hover"
         variants={varHover(1.05)}
-        // color={popover.open ? 'inherit' : 'default'}
-        // onClick={popover.onOpen}
-        // sx={{
-        //   ...(popover.open && {
-        //     bgcolor: (theme) => theme.palette.action.selected,
-        //   }),
-        // }}
+        color={popover.open ? 'inherit' : 'default'}
+        onClick={popover.onOpen}
+        sx={{
+          ...(popover.open && {
+            bgcolor: (theme) => theme.palette.action.selected,
+          }),
+        }}
       >
         <Iconify icon="solar:users-group-rounded-bold-duotone" width={24} />
       </IconButton>
 
-      {/* <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 320 }}>
+      <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 320 }}>
         <Typography variant="h6" sx={{ p: 1.5 }}>
           Contacts <Typography component="span">({_contacts.length})</Typography>
         </Typography>
@@ -67,7 +67,7 @@ export default function ContactsPopover() {
             </MenuItem>
           ))}
         </Scrollbar>
-      </CustomPopover> */}
+      </CustomPopover>
     </>
   );
 }

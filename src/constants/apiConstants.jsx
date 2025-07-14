@@ -7,6 +7,7 @@ export const ACTION_CODES = {
     GET_PRODUCT_DETAIL:'getProductDetail',
     ADD_PRODUCTS:'addProducts',
     DELETE_PRODUCT: 'deleteProduct',
+    EDIT_PRODUCT:'editProduct'
 };
 
 export const STORE_KEYS = {
@@ -15,5 +16,6 @@ export const STORE_KEYS = {
     PRODUCT_LIST:'productList',
     PRODUCT_DETAIL:'productDetail',
     ADDED_PRODUCTS:'addedProduct',
-    DELETED_PRODUCT:'deletedProduct'
+    DELETED_PRODUCT:'deletedProduct',
+    EDITED_PRODUCT:'editedProduct'
 };
