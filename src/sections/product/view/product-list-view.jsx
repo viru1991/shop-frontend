@@ -96,17 +96,18 @@ useEffect(() => {
     //   setSearchParams({ page: '1' });
     //   return;
     // }
-    // if(!state[STORE_KEYS.PRODUCT_LIST]?.data){
+    // if(!state[STORE_KEYS.ADMIN_PRODUCT_LIST]?.data){
     loadStart()
     // ✅ If page param exists → load with it
     const bundle = {
       payload: {
-        urlPath: ACTION_CODES.GET_PRODUCTS,
+        // urlPath: ACTION_CODES.GET_PRODUCTS,
+        urlPath:ACTION_CODES.GET_ADMIN_PRODUCTS,
         requestType: 'GET',
-        reqObj: { page: 1 }
+        reqObj: {  }
       },
       uniqueScreenIdentifier: { page: 1 },
-      storeKey: STORE_KEYS.PRODUCT_LIST
+      storeKey: STORE_KEYS.ADMIN_PRODUCT_LIST
     };
 
     dispatch(executeACGAction(bundle));  
@@ -120,8 +121,8 @@ useEffect(() => {
   // }, [products]);
 
 useEffect(() => {
-    if (state[STORE_KEYS.PRODUCT_LIST]?.data.length) {
-      const data = [...state[STORE_KEYS.PRODUCT_LIST]?.data]
+    if (state[STORE_KEYS.ADMIN_PRODUCT_LIST]?.data.length) {
+      const data = [...state[STORE_KEYS.ADMIN_PRODUCT_LIST]?.data]
 
       let newData = data?.map((ele) => {
         return {
@@ -131,10 +132,10 @@ useEffect(() => {
           inventoryType:ele?.stockLabel
         }
       })
-      // setTableData(state[STORE_KEYS.PRODUCT_LIST]?.data);
+      // setTableData(state[STORE_KEYS.ADMIN_PRODUCT_LIST]?.data);
       setTableData(newData);
     }
-},[state[STORE_KEYS.PRODUCT_LIST]?.data])
+},[state[STORE_KEYS.ADMIN_PRODUCT_LIST]?.data])
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -222,7 +223,7 @@ useEffect(() => {
         reqObj: { page: 1 }, // Or use your current page param
       },
       uniqueScreenIdentifier: { page: 1 },
-      storeKey: STORE_KEYS.PRODUCT_LIST
+      storeKey: STORE_KEYS.ADMIN_PRODUCT_LIST
     }));
 
     // Clear the DELETED_PRODUCT key so the effect does not re-fire
@@ -401,7 +402,7 @@ useEffect(() => {
             pageSizeOptions={[5, 10, 25]}
             initialState={{
               pagination: {
-                paginationModel: { pageSize: 5 },
+                paginationModel: { pageSize: 25 },
               },
             }}
             onRowSelectionModelChange={(newSelectionModel) => {

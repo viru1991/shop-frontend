@@ -122,9 +122,9 @@ export function useNavData() {
               //   path: paths.dashboard.product.demo.details,
               // },
                 
-              { title: t('details'), path: '/dashboard/product/:id' },
+              // { title: t('details'), path: '/dashboard/product/:id' },
               { title: t('create'), path: paths.dashboard.product.new },
-              { title: t('edit'), path: '/dashboard/product/:id/edit' },
+              // { title: t('edit'), path: '/dashboard/product/:id/edit' },
             ],
           },
 

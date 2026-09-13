@@ -88,7 +88,8 @@ export function RenderCellProduct({ params }) {
     <Stack direction="row" alignItems="center" sx={{ py: 2, width: 1 }}>
       <Avatar
         alt={params.row.name}
-        src={params.row.coverUrl}
+        // src={params.row.coverUrl}
+        src={params.row.thumbnail || params.row.images[0]}
         variant="rounded"
         sx={{ width: 64, height: 64, mr: 2 }}
       />
