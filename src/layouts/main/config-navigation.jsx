@@ -12,11 +12,11 @@ export const navConfig = [
     icon: <Iconify icon="solar:home-2-bold-duotone" />,
     path: '/',
   },
-  {
-    title: 'Components',
-    icon: <Iconify icon="solar:atom-bold-duotone" />,
-    path: paths.components,
-  },
+  // {
+  //   title: 'Components',
+  //   icon: <Iconify icon="solar:atom-bold-duotone" />,
+  //   path: paths.components,
+  // },
   {
     title: 'Pages',
     path: '/pages',
@@ -82,9 +82,9 @@ export const navConfig = [
       },
     ],
   },
-  {
-    title: 'Docs',
-    icon: <Iconify icon="solar:notebook-bold-duotone" />,
-    path: paths.docs,
-  },
+  // {
+  //   title: 'Docs',
+  //   icon: <Iconify icon="solar:notebook-bold-duotone" />,
+  //   path: paths.docs,
+  // },
 ];

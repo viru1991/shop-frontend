@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
 
 import MainLayout from 'src/layouts/main';
@@ -9,7 +10,10 @@ import { authRoutes } from './auth';
 import {  mainRoutes } from './main';
 
 import { dashboardRoutes } from './dashboard';
+import { SplashScreen } from 'src/components/loading-screen';
 // import { componentsRoutes } from './components';
+
+const HomePage = lazy(() => import('src/pages/home'));
 
 // ----------------------------------------------------------------------
 
@@ -24,18 +28,28 @@ export default function Router() {
     // ----------------------------------------------------------------------
 
     // SET INDEX PAGE WITH HOME PAGE
+    // {
+    //   path: '/',
+    //   element: (
+    //     <MainLayout>
+    //       {/* <HomePage /> */}
+    //       {/* <h1>dfds</h1> */}
+    //       <div style={{height:'100vh'}}> 
+    //         section 1
+    //       </div>
+    //       <div style={{height:'100vh'}}> 
+    //         section 2
+    //       </div>
+    //     </MainLayout>
+    //   ),
+    // },
     {
       path: '/',
       element: (
         <MainLayout>
-          {/* <HomePage /> */}
-          {/* <h1>dfds</h1> */}
-          <div style={{height:'100vh'}}> 
-            section 1
-          </div>
-          <div style={{height:'100vh'}}> 
-            section 2
-          </div>
+          <Suspense fallback={<SplashScreen />}>
+            <HomePage />
+          </Suspense>
         </MainLayout>
       ),
     },

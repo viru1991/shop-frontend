@@ -63,8 +63,8 @@ export default function Footer() {
 
         <Typography variant="caption" component="div">
           © All rights reserved
-          <br /> made by
-          <Link href="https://minimals.cc/"> minimals.cc </Link>
+          <br /> made by Nithin T.R.
+          {/* <Link href="https://minimals.cc/"> minimals.cc </Link> */}
         </Typography>
       </Container>
     </Box>
@@ -168,5 +168,6 @@ export default function Footer() {
     </Box>
   );
 
-  return homePage ? simpleFooter : mainFooter;
+  // return homePage ? simpleFooter : mainFooter;
+  return mainFooter
 }
